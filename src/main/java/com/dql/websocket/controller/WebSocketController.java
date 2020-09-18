@@ -19,6 +19,12 @@ public class WebSocketController {
     @Value("${redis.channel.msgToAll}")
     private String msgToAll;
 
+    @Value("${redis.set.onlineUsers}")
+    private String onlineUsers;
+
+    @Value("${redis.channel.userStatus}")
+    private String userStatus;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
@@ -36,11 +42,15 @@ public class WebSocketController {
     }
 
     @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage,
-                               SimpMessageHeaderAccessor headerAccessor) {
-        // Add username in web socket session
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        return chatMessage;
+    public void addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+
+        log.info("User added in Chatroom:" + chatMessage.getSender());
+        try {
+            headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+            redisTemplate.opsForSet().add(onlineUsers, chatMessage.getSender());
+            redisTemplate.convertAndSend(userStatus, JsonUtil.parseObjToJson(chatMessage));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

@@ -18,3 +18,6 @@ spring:
 redis:
   channel:
     msgToAll: websocket.msgToAll
+    userStatus: websocket.userStatus
+  set:
+    onlineUsers: websocket.onlineUsers

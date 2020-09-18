@@ -23,4 +23,9 @@ public class WebSocketService {
         simpMessageSendingOperations.convertAndSend("/topic/public", chatMessage);
     }
 
+    public void alertUserStatus(@Payload ChatMessage chatMessage) {
+        log.info("Alert user online by simpMessageSendingOperations:" + chatMessage.toString());
+        simpMessageSendingOperations.convertAndSend("/topic/public", chatMessage);
+    }
+
 }

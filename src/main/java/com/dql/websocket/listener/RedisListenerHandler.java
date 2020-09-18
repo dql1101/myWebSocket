@@ -21,6 +21,9 @@ public class RedisListenerHandler extends MessageListenerAdapter {
     @Value("${redis.channel.msgToAll}")
     private String msgToAll;
 
+    @Value("${redis.channel.userStatus}")
+    private String userStatus;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     private final WebSocketService webSocketService;
@@ -51,12 +54,16 @@ public class RedisListenerHandler extends MessageListenerAdapter {
             return;
         }
 
-
         if (msgToAll.equals(topic)) {
             log.info("Send message to all users:" + rawMsg);
             ChatMessage chatMessage = JsonUtil.parseJsonToObj(rawMsg, ChatMessage.class);
             // 发送消息给所有在线Cid
             webSocketService.sendMsg(chatMessage);
+        } else if (userStatus.equals(topic)) {
+            ChatMessage chatMessage = JsonUtil.parseJsonToObj(rawMsg, ChatMessage.class);
+            if (chatMessage != null) {
+                webSocketService.alertUserStatus(chatMessage);
+            }
         } else {
             log.warn("No further operation with this topic!");
         }

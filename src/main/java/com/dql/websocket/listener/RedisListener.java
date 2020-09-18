@@ -16,6 +16,9 @@ public class RedisListener {
     @Value("${redis.channel.msgToAll}")
     private String msgToAll;
 
+    @Value("${redis.channel.userStatus}")
+    private String userStatus;
+
     /**
      * redis消息监听器容器
      * 可以添加多个监听不同话题的redis监听器，只需要把消息监听器和相应的消息订阅处理器绑定，该消息监听器
@@ -30,7 +33,8 @@ public class RedisListener {
 
         // 监听msgToAll
         container.addMessageListener(messageListenerAdapter, new PatternTopic(msgToAll));
-        log.info("Subscribed Redis channel:  {}", msgToAll);
+        container.addMessageListener(messageListenerAdapter, new PatternTopic(userStatus));
+        log.info("Subscribed Redis channel:  {}, userStatus: {}", msgToAll, userStatus);
         return container;
     }
 
