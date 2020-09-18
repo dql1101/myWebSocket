@@ -36,6 +36,7 @@ public class WebSocketListener {
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         log.info("Received a new web socket connection");
+        // 当有
     }
 
     @EventListener
@@ -51,6 +52,7 @@ public class WebSocketListener {
             chatMessage.setSender(username);
             try {
                 redisTemplate.opsForSet().remove(onlineUsers, username);
+                chatMessage.setUserNum(redisTemplate.opsForSet().size(onlineUsers));
                 redisTemplate.convertAndSend(userStatus, JsonUtil.parseObjToJson(chatMessage));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

@@ -48,6 +48,7 @@ public class WebSocketController {
         try {
             headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
             redisTemplate.opsForSet().add(onlineUsers, chatMessage.getSender());
+            chatMessage.setUserNum(redisTemplate.opsForSet().size(onlineUsers));
             redisTemplate.convertAndSend(userStatus, JsonUtil.parseObjToJson(chatMessage));
         } catch (Exception e) {
             log.error(e.getMessage(), e);

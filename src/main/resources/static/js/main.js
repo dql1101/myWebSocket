@@ -7,6 +7,7 @@ const messageForm = document.querySelector('#messageForm');
 const messageInput = document.querySelector('#message');
 const messageArea = document.querySelector('#messageArea');
 const connectingElement = document.querySelector('.connecting');
+const userNumDiv = document.querySelector('#user-num');
 
 let stompClient = null;
 let username = null;
@@ -20,18 +21,13 @@ function connect(event) {
     username = document.querySelector('#name').value.trim();
 
     if(username) {
-        // console.log(username)
-        // if (username !== '兮兮酱' || username !== '圆圆酱') {
-        //     alert('昵称只能为兮兮酱或者圆圆酱')
-        // } else {
-            usernamePage.classList.add('hidden');
-            chatPage.classList.remove('hidden');
+        usernamePage.classList.add('hidden');
+        chatPage.classList.remove('hidden');
 
-            const socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
 
-            stompClient.connect({}, onConnected, onError);
-        // }
+        stompClient.connect({}, onConnected, onError);
     }
     event.preventDefault();
 }
@@ -52,18 +48,19 @@ function onConnected(options) {
 
 
 function onError(error) {
-    connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
+    connectingElement.textContent = '无法连接到聊天室服务器，请重试';
     connectingElement.style.color = 'red';
 }
 
 
 function sendMessage(event) {
-    var messageContent = messageInput.value.trim();
+    const messageContent = messageInput.value.trim();
     if(messageContent && stompClient) {
         const chatMessage = {
             sender: username,
             content: messageInput.value,
-            type: 'CHAT'
+            type: 'CHAT',
+            userNum: 0
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -79,22 +76,22 @@ function onMessageReceived(payload) {
 
     if(message.type === 'JOIN') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
+        message.content = message.sender + ' 加入了聊天室!';
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
+        message.content = message.sender + ' 离开了聊天室!';
     } else {
         messageElement.classList.add('chat-message');
 
-        var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
+        const avatarElement = document.createElement('i');
+        const avatarText = document.createTextNode(message.sender[0]);
         avatarElement.appendChild(avatarText);
         avatarElement.style['background-color'] = getAvatarColor(message.sender);
 
         messageElement.appendChild(avatarElement);
 
-        var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        const usernameElement = document.createElement('span');
+        const usernameText = document.createTextNode(message.sender);
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
@@ -106,6 +103,7 @@ function onMessageReceived(payload) {
     messageElement.appendChild(textElement);
 
     messageArea.appendChild(messageElement);
+    userNumDiv.innerHTML = '当前在线人数：' + message.userNum;
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 

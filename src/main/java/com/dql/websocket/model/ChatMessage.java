@@ -11,6 +11,8 @@ public class ChatMessage {
 
     private String sender;
 
+    private Long userNum;
+
     public enum MessageType {
         CHAT,
         JOIN,
