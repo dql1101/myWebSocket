@@ -1,2 +1,20 @@
 server:
   port: 8080
+
+# redis集群
+spring:
+  redis:
+    cluster:
+      nodes: 106.55.233.85:9001,106.55.233.85:9002,106.55.233.85:9003,106.55.233.85:9004,106.55.233.85:9005,106.55.233.85:9006
+      max-redirects: 3  # 获取失败 最大重定向次数
+    lettuce:
+      pool:
+        max-active: 1000  #连接池最大连接数（使用负值表示没有限制）
+        max-idle: 10 # 连接池中的最大空闲连接
+        min-idle: 5 # 连接池中的最小空闲连接
+        max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
+
+# Redis定义
+redis:
+  channel:
+    msgToAll: websocket.msgToAll
