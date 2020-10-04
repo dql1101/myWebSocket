@@ -35,6 +35,7 @@ public class WebSocketController {
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage chatMessage) {
         try {
+            log.info("Sending message from===>", chatMessage.getSender());
             redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(chatMessage));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
